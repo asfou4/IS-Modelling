@@ -125,11 +125,11 @@ public class BFS {
             Document doc = Jsoup.connect(url).get();
             Elements anchors = doc.select("a");
             int urutan_anak = 1;
-            String sql_value = "";
             
             //parsing link utama-------------------------------
             for (Element anchor : anchors) {
-            String sql_values = "";
+                sql = "insert into bfs(nama_url,url,induk,jumlah_anak,anak_ke,akar_ke) ";
+                String sql_value = "";
                 String nama_url = "";
                 String url_anchor = "";
                 String induk = "";
@@ -152,7 +152,7 @@ public class BFS {
                 //System.out.println("Akar ke = " + akar);
                 
                 sql_value = "values('" + nama_url + "','" + url_anchor + "','" + induk + "'," + jumlah_anak + "," + anak_ke + "," + akar +");";
-                sql = sql + sql_values;
+                sql = sql + sql_value;
                 int cek;
                 cek = select(url_anchor);
                 if (cek == 0) {
