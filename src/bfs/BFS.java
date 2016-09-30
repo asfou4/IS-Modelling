@@ -20,7 +20,29 @@ public class BFS {
     public static void main(String[] args) throws SQLException, IOException {
         input();
         tampilkan();
+//        tes();
     }
+
+    private static void tes() throws SQLException {
+        try {
+            konek();
+            st = con.createStatement();
+            ResultSet rs = st.executeQuery("select url from bfs where akar_ke = '2'");
+            Vector<String> url = new <String> Vector();
+            while (rs.next()) {
+                url.add(rs.getString("url"));
+            }
+            for (int j = 0; j < url.size(); j++) {
+//                String url_anchor = "";
+//                url_anchor = 
+                System.out.println(url.get(j));
+                //parsing(url_anchor, (akar + 1), 0);
+            }
+        }catch (SQLException e){
+            System.err.println(e);
+        }
+    }
+    
 
     private static void konek() throws SQLException {
         String dbHost = "jdbc:mysql://localhost:3306/uninform";
@@ -30,7 +52,7 @@ public class BFS {
         try {
             con = DriverManager.getConnection(dbHost, dbUser, dbPass);
             //System.out.println("SUKSES !!!");
-
+            
         } catch (SQLException e) {
             System.err.println(e);
         }
@@ -81,19 +103,19 @@ public class BFS {
                 parsing(alamat, i, pertama);
                 pertama = 0;
             } else {
-                try{
+                try {
                     st = con.createStatement();
-                    ResultSet rs = st.executeQuery("select url from bfs where anak_ke = " + akar);
-                    Vector<String> url = new<String> Vector();
-                    while(rs.next()){
+                    ResultSet rs = st.executeQuery("select url from bfs where akar_ke = " + akar);
+                    Vector<String> url = new <String> Vector();
+                    while (rs.next()) {
                         url.add(rs.getString("url"));
                     }
-                    for(int j = 0; j < url.size(); j++){
+                    for (int j = 0; j < url.size(); j++) {
                         String url_anchor = "";
                         url_anchor = url.get(j);
-                        parsing(url_anchor,(akar+1),0);
+                        parsing(url_anchor, (akar + 1), 0);
                     }
-                }catch(SQLException e){
+                } catch (SQLException e) {
                     System.err.println(e);
                 }
 //                
@@ -103,6 +125,7 @@ public class BFS {
 
     private static void parsing(String url, int akar, int pertama) throws IOException, SQLException {
         String sql = "insert into bfs(nama_url,url,induk,jumlah_anak,anak_ke,akar_ke) ";
+        
         if (pertama == 1) {
             url = "http://www." + url;
             Document doc = Jsoup.connect(url).get();
@@ -110,54 +133,54 @@ public class BFS {
             String sql_value = "";
             int jumlah_anak = anchors.size();
             sql_value = "values('UINSA Surabaya','" + url + "',''," + jumlah_anak + ",0," + akar + ")";
-            sql = sql+sql_value;
+            sql = sql + sql_value;
             //System.out.println(sql);
             insert(sql);
             akar = akar + 1;
             pertama = 0;
         }
 
-            Document doc = Jsoup.connect(url).get();
-            Elements anchors = doc.select("a");
-            int urutan_anak = 1;
-            
-            //parsing link utama-------------------------------
-            for (Element anchor : anchors) {
-                sql = "insert into bfs(nama_url,url,induk,jumlah_anak,anak_ke,akar_ke) ";
-                String sql_value = "";
-                String nama_url = "";
-                String url_anchor = "";
-                String induk = "";
-                int jumlah_anak = 0;
-                int anak_ke;
-                nama_url = anchor.text().toString(); //Ambil nama link
-                nama_url = nama_url.replaceAll("'","''");
-                url_anchor = anchor.attr("abs:href"); //Ambil href link = link_ambil
-                url_anchor = url_anchor.replaceAll("'","''");
-                induk = url;
-                anak_ke = urutan_anak;
+        Document doc = Jsoup.connect(url).get();
+        Elements anchors = doc.select("a");
+        int urutan_anak = 1;
+
+        //parsing link utama-------------------------------
+        for (Element anchor : anchors) {
+            sql = "insert into bfs(nama_url,url,induk,jumlah_anak,anak_ke,akar_ke) ";
+            String sql_value = "";
+            String nama_url = "";
+            String url_anchor = "";
+            String induk = "";
+            int jumlah_anak = 0;
+            int anak_ke;
+            nama_url = anchor.text().toString(); //Ambil nama link
+            nama_url = nama_url.replaceAll("'", "''");
+            url_anchor = anchor.attr("abs:href"); //Ambil href link = link_ambil
+            url_anchor = url_anchor.replaceAll("'", "''");
+            induk = url;
+            anak_ke = urutan_anak;
 
                 //System.out.println("Nama link = " + nama_url);
-                //System.out.println("Link = " + url_anchor);
-                //System.out.println("Induk = " + induk);
-                //System.out.println("Anak ke = " + anak_ke);
-                try {
-                    jumlah_anak = jumlah_anak(url_anchor);
-                } catch (IOException e) {
+            //System.out.println("Link = " + url_anchor);
+            //System.out.println("Induk = " + induk);
+            //System.out.println("Anak ke = " + anak_ke);
+            try {
+                jumlah_anak = jumlah_anak(url_anchor);
+            } catch (IOException e) {
 
-                }
-                //System.out.println("Akar ke = " + akar);
-                
-                sql_value = "values('" + nama_url + "','" + url_anchor + "','" + induk + "'," + jumlah_anak + "," + anak_ke + "," + akar +");";
-                sql = sql + sql_value;
-                int cek;
-                cek = select(url_anchor);
-                if (cek == 0) {
-                    insert(sql);
-                }
-                urutan_anak++;
             }
-            //-------------------------------------------------------------------------------------
+                //System.out.println("Akar ke = " + akar);
+
+            sql_value = "values('" + nama_url + "','" + url_anchor + "','" + induk + "'," + jumlah_anak + "," + anak_ke + "," + akar + ");";
+            sql = sql + sql_value;
+            int cek;
+            cek = select(url_anchor);
+            if (cek == 0) {
+                insert(sql);
+            }
+            urutan_anak++;
+        }
+        //-------------------------------------------------------------------------------------
     }
 
     private static int jumlah_anak(String url_anchor) throws IOException {
@@ -167,37 +190,36 @@ public class BFS {
         } else {
             Document doc1 = Jsoup.connect(url_anchor).get();//Cek isi link dari link_ambil
             Elements anchors1 = doc1.select("a");
-            
+
             jumlah_anak = anchors1.size();
             //System.out.println("Jumlah anak = " + jumlah_anak);
         }
         return jumlah_anak;
     }
-    
-    
-    public static void tampilkan() throws SQLException{
+
+    public static void tampilkan() throws SQLException {
         konek();
-        try{
+        try {
             st = con.createStatement();
             ResultSet rs = st.executeQuery("select count(akar_ke) from bfs group by akar_ke");
-            int jumlah_akar = 0 ;
-            while(rs.next()){
+            int jumlah_akar = 0;
+            while (rs.next()) {
                 jumlah_akar = rs.getInt("count(akar_ke)");
             }
             for (int i = 1; i <= jumlah_akar; i++) {
-                try{
+                try {
                     st = con.createStatement();
                     ResultSet rs1 = st.executeQuery("select * from bfs where akar_ke = " + i);
-                    if(i == 1){
+                    if (i == 1) {
                         System.out.println("---------------------------");
-                        while(rs1.next()){
+                        while (rs1.next()) {
                             String nama_url = rs1.getString("url");
                             System.out.println("----------" + nama_url + "--------");
                         }
-                    }else{
+                    } else {
                         st = con.createStatement();
                         ResultSet rs2 = st.executeQuery("select * from bfs where akar_ke = " + i);
-                        while(rs2.next()){
+                        while (rs2.next()) {
                             String induk = rs2.getString("induk");
                             String url = rs2.getString("url");
                             System.out.print("Asal : " + induk);
@@ -205,13 +227,13 @@ public class BFS {
                         }
                         System.out.println("---------------------------");
                     }
-                    
-                }catch(SQLException e){
+
+                } catch (SQLException e) {
                     System.err.println(e);
                 }
-                System.out.println("------------Akar ke"+(i+1)+"-------------");
+                System.out.println("------------Akar ke" + (i + 1) + "-------------");
             }
-        }catch(SQLException e){
+        } catch (SQLException e) {
             System.err.println(e);
         }
     }
