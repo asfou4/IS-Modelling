@@ -131,7 +131,9 @@ public class BFS {
                 int jumlah_anak = 0;
                 int anak_ke;
                 nama_url = anchor.text().toString(); //Ambil nama link
+                nama_url = nama_url.replaceAll("'","''");
                 url_anchor = anchor.attr("abs:href"); //Ambil href link = link_ambil
+                url_anchor = url_anchor.replaceAll("'","''");
                 induk = url;
                 anak_ke = urutan_anak;
 
@@ -180,7 +182,7 @@ public class BFS {
             ResultSet rs = st.executeQuery("select count(akar_ke) from bfs group by akar_ke");
             int jumlah_akar = 0 ;
             while(rs.next()){
-                jumlah_akar = rs.getInt("count(akar)");
+                jumlah_akar = rs.getInt("count(akar_ke)");
             }
             for (int i = 1; i <= jumlah_akar; i++) {
                 try{
